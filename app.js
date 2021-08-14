@@ -15,6 +15,30 @@ const hbs = require('hbs');
 
 const app = express();
 
+// require session
+const session = require('express-session');
+
+// ADDED: require mongostore
+const MongoStore = require('connect-mongo');
+
+const mongoose = require('mongoose');
+
+app.use(
+  session({
+    secret: 'doesnt matter',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 600000 }, // 10 minutes
+    store: MongoStore.create({
+      // <== ADDED !!!
+      mongoUrl: "mongodb://localhost/lab-express-basic-auth",
+      //mongooseConnection: mongoose.connection,
+      // ttl => time to live
+      // ttl: 60 * 60 * 24 // 60sec * 60min * 24h => 1 day
+    })
+  })
+);
+
 // ℹ️ This function is getting exported from the config folder. It runs most middlewares
 require('./config')(app);
 
@@ -27,6 +51,8 @@ app.locals.title = `${capitalized(projectName)}- Generated with Ironlauncher`;
 // 👇 Start handling routes here
 const index = require('./routes/index');
 app.use('/', index);
+const user = require('./routes/userRoutes');
+app.use('/user', user);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require('./error-handling')(app);
