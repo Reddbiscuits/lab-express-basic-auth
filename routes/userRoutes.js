@@ -16,8 +16,19 @@ router.get("/register", (req, res, next) => {
 
     const hash1 = bcrypt.hashSync(req.body.password, salt);
 
+    User.findOne({ username: req.body.username }).then((result) => {
+      if (null != result) {
+        // console.log("USERNAME ALREADY EXISTS:", result.username);
+          // deferred.resolve(false); // username exists
+          alert("USERNAME ALREADY EXISTS:", result.username);
+          res.redirect('/')
+      }
+      else {
+
     User.create({ username: req.body.username, password: hash1 }).then(() => {
         res.send("user created")
+      })
+          }
     })
   });
 
